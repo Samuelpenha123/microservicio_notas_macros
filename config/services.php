@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'helpdesk' => [
+        'base_url' => env('HELPDESK_API_BASE_URL', 'https://api.proyecto-de-ultimo-minuto.online/api'),
+        'timeout' => env('HELPDESK_API_TIMEOUT', 15),
+        'device_name' => env('HELPDESK_DEVICE_NAME', env('APP_NAME', 'Helpdesk Panel')),
+        'remember_me' => filter_var(env('HELPDESK_REMEMBER_ME', true), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];
