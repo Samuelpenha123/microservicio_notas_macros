@@ -20,7 +20,7 @@
 <script>
     window.onload = () => {
         SwaggerUIBundle({
-            url: "{{ url('openapi.json') }}",
+            url: "{{ app()->environment('production') ? secure_asset('openapi.json') : asset('openapi.json') }}",
             dom_id: '#swagger-ui',
             presets: [
                 SwaggerUIBundle.presets.apis,
