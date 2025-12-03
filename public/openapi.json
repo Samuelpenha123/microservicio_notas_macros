@@ -1,0 +1,541 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Microservicio Helpdesk - API interna",
+    "version": "1.0.0",
+    "description": "Documentación de los endpoints que expone el panel interno construido en Laravel. Todos los endpoints consumen la API externa utilizando el token persistido en sesión (`ext_token`)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Entorno local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "laravel_session"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "agente@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "secret"
+          }
+        }
+      },
+      "TicketResponseRequest": {
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "example": "Hola, gracias por tu consulta..."
+          },
+          "internal": {
+            "type": "boolean",
+            "description": "Cuando es true, la respuesta se marca como interna en la API externa.",
+            "example": false
+          }
+        }
+      },
+      "InternalNote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 12
+          },
+          "ticket_code": {
+            "type": "string",
+            "example": "TKT-2025-00011"
+          },
+          "content": {
+            "type": "string",
+            "example": "El cliente tuvo la misma incidencia en el ticket #3610."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InternalNoteRequest": {
+        "type": "object",
+        "required": [
+          "ticket_code",
+          "content"
+        ],
+        "properties": {
+          "ticket_code": {
+            "type": "string",
+            "example": "TKT-2025-00011"
+          },
+          "content": {
+            "type": "string",
+            "example": "Usuario requiere seguimiento el viernes."
+          }
+        }
+      },
+      "Macro": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 5
+          },
+          "name": {
+            "type": "string",
+            "example": "Saludo inicial"
+          },
+          "content": {
+            "type": "string",
+            "example": "Hola {{nombre}}, gracias por contactarnos..."
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "global"
+            ],
+            "example": "personal"
+          },
+          "created_by": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "MacroRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "content",
+          "scope"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Solicitud de evidencia"
+          },
+          "content": {
+            "type": "string",
+            "example": "¿Podrías enviar capturas y pasos para reproducir?"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "global"
+            ],
+            "example": "global"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "Inicia sesión con las credenciales del helpdesk externo.",
+        "tags": [
+          "Autenticación"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirección al listado de tickets con la sesión externa almacenada."
+          },
+          "422": {
+            "description": "Credenciales inválidas."
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Cierra sesión y limpia el token externo.",
+        "tags": [
+          "Autenticación"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirige a /login."
+          }
+        }
+      }
+    },
+    "/tickets": {
+      "get": {
+        "summary": "Listado de tickets traídos de la API externa.",
+        "tags": [
+          "Tickets"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vista HTML con los tickets disponibles."
+          },
+          "401": {
+            "description": "Sesión expirada."
+          }
+        }
+      }
+    },
+    "/tickets/{ticket_code}": {
+      "get": {
+        "summary": "Detalle del ticket, conversación y paneles internos.",
+        "tags": [
+          "Tickets"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "TKT-2025-00011"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vista HTML con el detalle del ticket."
+          },
+          "403": {
+            "description": "La API externa reportó que el agente no tiene permisos sobre el ticket."
+          },
+          "404": {
+            "description": "El ticket no existe o la API externa lo reportó como inexistente."
+          }
+        }
+      }
+    },
+    "/tickets/{ticket_code}/responses": {
+      "post": {
+        "summary": "Envía una respuesta al cliente usando la API externa.",
+        "tags": [
+          "Tickets"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketResponseRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketResponseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirige al detalle del ticket con un mensaje de éxito."
+          },
+          "422": {
+            "description": "Validación fallida antes de enviar a la API externa."
+          },
+          "502": {
+            "description": "La API externa rechazó la operación."
+          }
+        }
+      }
+    },
+    "/internal-notes": {
+      "post": {
+        "summary": "Crea una nota privada ligada al ticket.",
+        "tags": [
+          "Notas internas"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalNoteRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalNoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirige al ticket con confirmación de nota guardada."
+          },
+          "422": {
+            "description": "Datos incompletos."
+          }
+        }
+      }
+    },
+    "/internal-notes/{id}": {
+      "delete": {
+        "summary": "Elimina una nota interna (solo el autor).",
+        "tags": [
+          "Notas internas"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Vuelve al ticket con mensaje de eliminación."
+          },
+          "403": {
+            "description": "Intento de borrar una nota de otro agente."
+          }
+        }
+      }
+    },
+    "/api/internal-notes/{ticket_code}": {
+      "get": {
+        "summary": "Listado JSON de notas internas del ticket para el agente actual.",
+        "tags": [
+          "Notas internas"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ticket_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "TKT-2025-00011"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Colección de notas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InternalNote"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sesión expirada."
+          }
+        }
+      }
+    },
+    "/macros": {
+      "post": {
+        "summary": "Crea una macro personal o global.",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MacroRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/MacroRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirección con mensaje de éxito."
+          },
+          "422": {
+            "description": "Validación fallida."
+          }
+        }
+      }
+    },
+    "/macros/{id}": {
+      "delete": {
+        "summary": "Elimina una macro (solo el autor).",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Vuelve al ticket con mensaje de eliminación."
+          },
+          "403": {
+            "description": "La macro no pertenece al agente."
+          }
+        }
+      }
+    },
+    "/api/macros": {
+      "get": {
+        "summary": "Macros visibles para el agente (globales + personales).",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado de macros",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Macro"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Autenticación"
+    },
+    {
+      "name": "Tickets"
+    },
+    {
+      "name": "Notas internas"
+    },
+    {
+      "name": "Macros"
+    }
+  ]
+}

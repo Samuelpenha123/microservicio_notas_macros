@@ -6,6 +6,8 @@ use App\Http\Controllers\MacroController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
+Route::view('/docs', 'swagger')->name('docs');
+
 Route::middleware('ext.guest')->group(function () {
     Route::get('/', fn () => redirect()->route('login'));
     Route::get('/login', [ExternalAuthController::class, 'create'])->name('login');
