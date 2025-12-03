@@ -7,6 +7,10 @@
   },
   "servers": [
     {
+      "url": "https://microservicionotasmacros-production.up.railway.app",
+      "description": "Producción (Railway)"
+    },
+    {
       "url": "http://localhost:8000",
       "description": "Entorno local"
     }
