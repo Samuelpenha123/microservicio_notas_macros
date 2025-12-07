@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ExternalAuthController;
 use App\Http\Controllers\InternalNoteController;
 use App\Http\Controllers\MacroController;
+use App\Http\Controllers\MacroUsageController;
 use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,9 +24,17 @@ Route::middleware('ext.auth')->group(function () {
         ->name('tickets.responses.store');
 
     Route::post('/internal-notes', [InternalNoteController::class, 'store'])->name('internal-notes.store');
+    Route::put('/internal-notes/{internalNote}', [InternalNoteController::class, 'update'])->name('internal-notes.update');
     Route::delete('/internal-notes/{internalNote}', [InternalNoteController::class, 'destroy'])
         ->name('internal-notes.destroy');
 
     Route::post('/macros', [MacroController::class, 'store'])->name('macros.store');
+    Route::put('/macros/{macro}', [MacroController::class, 'update'])->name('macros.update');
     Route::delete('/macros/{macro}', [MacroController::class, 'destroy'])->name('macros.destroy');
+    Route::post('/macros/{macro}/favorite', [MacroController::class, 'toggleFavorite'])->name('macros.favorite');
+
+    Route::post('/macros/{macro}/preview', [MacroUsageController::class, 'preview'])->name('macros.preview');
+    Route::post('/macros/{macro}/usages', [MacroUsageController::class, 'store'])->name('macros.usages.store');
+    Route::post('/macro-usages/{macroUsage}/feedback', [MacroUsageController::class, 'feedback'])
+        ->name('macros.usages.feedback');
 });

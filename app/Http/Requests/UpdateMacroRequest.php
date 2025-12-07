@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreMacroRequest extends FormRequest
+class UpdateMacroRequest extends FormRequest
 {
     public function authorize(): bool
     {

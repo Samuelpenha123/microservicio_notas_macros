@@ -66,6 +66,14 @@
             "type": "integer",
             "example": 12
           },
+          "agent_id": {
+            "type": "integer",
+            "example": 3
+          },
+          "agent_name": {
+            "type": "string",
+            "example": "María López"
+          },
           "ticket_code": {
             "type": "string",
             "example": "TKT-2025-00011"
@@ -74,6 +82,26 @@
             "type": "string",
             "example": "El cliente tuvo la misma incidencia en el ticket #3610."
           },
+          "is_important": {
+            "type": "boolean",
+            "example": true
+          },
+          "mentions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "@soporte",
+              "@juan"
+            ]
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InternalNoteAttachment"
+            }
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -81,6 +109,30 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "InternalNoteAttachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "original_name": {
+            "type": "string",
+            "example": "captura.png"
+          },
+          "path": {
+            "type": "string",
+            "example": "internal-notes/captura.png"
+          },
+          "mime_type": {
+            "type": "string",
+            "example": "image/png"
+          },
+          "size": {
+            "type": "integer",
+            "example": 204800
           }
         }
       },
@@ -98,6 +150,10 @@
           "content": {
             "type": "string",
             "example": "Usuario requiere seguimiento el viernes."
+          },
+          "is_important": {
+            "type": "boolean",
+            "example": false
           }
         }
       },
@@ -124,9 +180,17 @@
             ],
             "example": "personal"
           },
+          "category": {
+            "type": "string",
+            "example": "Soporte"
+          },
           "created_by": {
             "type": "integer",
             "example": 1
+          },
+          "created_by_name": {
+            "type": "string",
+            "example": "Carlos Pinto"
           }
         }
       },
@@ -153,6 +217,10 @@
               "global"
             ],
             "example": "global"
+          },
+          "category": {
+            "type": "string",
+            "example": "Facturación"
           }
         }
       }
@@ -336,6 +404,11 @@
               "schema": {
                 "$ref": "#/components/schemas/InternalNoteRequest"
               }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalNoteRequest"
+              }
             }
           }
         },
@@ -350,6 +423,50 @@
       }
     },
     "/internal-notes/{id}": {
+      "put": {
+        "summary": "Actualiza el contenido y metadatos de una nota interna (solo autor).",
+        "tags": [
+          "Notas internas"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalNoteRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/InternalNoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Redirige al ticket con mensaje de actualización."
+          },
+          "403": {
+            "description": "Intento de editar una nota de otro agente."
+          }
+        }
+      },
       "delete": {
         "summary": "Elimina una nota interna (solo el autor).",
         "tags": [
@@ -400,6 +517,38 @@
               "type": "string"
             },
             "example": "TKT-2025-00011"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Palabra clave a buscar en el contenido de la nota."
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del agente autor."
+          },
+          {
+            "name": "only_important",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Si es true, solo devuelve notas marcadas como importantes."
+          },
+          {
+            "name": "with_attachments",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Devuelve únicamente notas con adjuntos."
           }
         ],
         "responses": {
@@ -464,6 +613,50 @@
       }
     },
     "/macros/{id}": {
+      "put": {
+        "summary": "Actualiza una macro existente (solo autor).",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MacroRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/MacroRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "302": {
+            "description": "Vuelve al ticket con mensaje de actualización."
+          },
+          "403": {
+            "description": "Intento de editar una macro de otro autor."
+          }
+        }
+      },
       "delete": {
         "summary": "Elimina una macro (solo el autor).",
         "tags": [
@@ -494,6 +687,216 @@
         }
       }
     },
+    "/macros/{id}/favorite": {
+      "post": {
+        "summary": "Agrega o quita una macro de los favoritos personales.",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirige al ticket con la confirmación del estado."
+          }
+        }
+      }
+    },
+    "/macros/{id}/preview": {
+      "post": {
+        "summary": "Genera la vista previa renderizada de una macro con variables sustituidas.",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ticket_code": {
+                    "type": "string"
+                  },
+                  "ticket_title": {
+                    "type": "string"
+                  },
+                  "customer_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contenido renderizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "content": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/macros/{id}/usages": {
+      "post": {
+        "summary": "Registra el uso de una macro (tracking/log).",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ticket_code": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "customized": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uso registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "usage_id": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/macro-usages/{id}/feedback": {
+      "post": {
+        "summary": "Registra el feedback (👍/👎) asociado a un uso de macro.",
+        "tags": [
+          "Macros"
+        ],
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "feedback": {
+                    "type": "string",
+                    "enum": [
+                      "positive",
+                      "negative"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feedback registrado"
+          },
+          "403": {
+            "description": "El uso no pertenece al agente."
+          }
+        }
+      }
+    },
     "/api/macros": {
       "get": {
         "summary": "Macros visibles para el agente (globales + personales).",
@@ -503,6 +906,40 @@
         "security": [
           {
             "SessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtro por nombre o contenido."
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Categoría específica."
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID del autor."
+          },
+          {
+            "name": "favorites",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Si es true, devuelve solo las macros favoritas del agente."
           }
         ],
         "responses": {

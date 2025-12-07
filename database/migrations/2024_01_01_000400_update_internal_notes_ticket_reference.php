@@ -38,9 +38,12 @@ return new class extends Migration {
             $table->unsignedBigInteger('ticket_id')->nullable()->after('agent_id');
         });
 
-        DB::table('internal_notes')
-            ->whereNotNull('ticket_code')
-            ->update(['ticket_id' => DB::raw('ticket_code')]);
+        // Solo trasladamos valores numéricos para evitar violaciones de tipo al revertir.
+        DB::statement("
+            UPDATE internal_notes
+            SET ticket_id = ticket_code
+            WHERE ticket_code REGEXP '^[0-9]+$'
+        ");
 
         Schema::table('internal_notes', function (Blueprint $table) {
             $table->dropIndex('internal_notes_agent_id_ticket_code_index');
@@ -48,6 +51,6 @@ return new class extends Migration {
             $table->index(['agent_id', 'ticket_id'], 'internal_notes_agent_id_ticket_id_index');
         });
 
-        DB::statement('ALTER TABLE internal_notes MODIFY ticket_id BIGINT UNSIGNED NOT NULL');
+        DB::statement('ALTER TABLE internal_notes MODIFY ticket_id BIGINT UNSIGNED NULL');
     }
 };

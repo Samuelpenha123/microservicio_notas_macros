@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreInternalNoteRequest extends FormRequest
+class UpdateInternalNoteRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +14,6 @@ class StoreInternalNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ticket_code' => ['required', 'string', 'max:120'],
             'content' => ['required', 'string', 'min:3'],
             'is_important' => ['nullable', 'boolean'],
             'attachments' => ['sometimes', 'array'],
