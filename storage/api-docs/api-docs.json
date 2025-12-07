@@ -1,0 +1,291 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Microservicio Peñarrieta API",
+        "description": "API documentation for Microservicio Peñarrieta",
+        "contact": {
+            "email": "admin@admin.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://my-default-host.com",
+            "description": "Demo API Server"
+        }
+    ],
+    "paths": {
+        "/api/internal-notes/{ticket}": {
+            "get": {
+                "tags": [
+                    "Internal Notes"
+                ],
+                "summary": "Get list of internal notes for a ticket",
+                "description": "Returns list of internal notes",
+                "operationId": "getInternalNotes",
+                "parameters": [
+                    {
+                        "name": "ticket",
+                        "in": "path",
+                        "description": "Ticket Code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "description": "Filter by author ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "only_important",
+                        "in": "query",
+                        "description": "Filter only important notes",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "with_attachments",
+                        "in": "query",
+                        "description": "Filter notes with attachments",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/InternalNote"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/macros": {
+            "get": {
+                "tags": [
+                    "Macros"
+                ],
+                "summary": "Get list of macros",
+                "description": "Returns list of macros filtered by criteria",
+                "operationId": "getMacros",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Filter by category",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "description": "Filter by author ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "favorites",
+                        "in": "query",
+                        "description": "Filter only favorites",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Macro"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "InternalNote": {
+                "required": [
+                    "ticket_code",
+                    "content",
+                    "agent_id"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "ticket_code": {
+                        "description": "Ticket Code",
+                        "type": "string"
+                    },
+                    "agent_id": {
+                        "description": "Agent ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "agent_name": {
+                        "description": "Agent Name",
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "Content",
+                        "type": "string"
+                    },
+                    "is_important": {
+                        "description": "Is Important",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Updated At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Macro": {
+                "required": [
+                    "name",
+                    "content",
+                    "scope",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "description": "Name",
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "Content",
+                        "type": "string"
+                    },
+                    "scope": {
+                        "description": "Scope (global/personal)",
+                        "type": "string"
+                    },
+                    "category": {
+                        "description": "Category",
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "description": "Created By Agent ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "created_by_name": {
+                        "description": "Created By Name",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Updated At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Internal Notes",
+            "description": "Internal Notes"
+        },
+        {
+            "name": "Macros",
+            "description": "Macros"
+        }
+    ]
+}
