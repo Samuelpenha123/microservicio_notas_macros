@@ -175,6 +175,656 @@
                     }
                 }
             }
+        },
+        "/internal-notes": {
+            "post": {
+                "tags": [
+                    "Internal Notes"
+                ],
+                "summary": "Store new internal note",
+                "description": "Creates a new internal note",
+                "operationId": "storeInternalNote",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ticket_code",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "ticket_code": {
+                                        "type": "string",
+                                        "example": "T-12345"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Note content"
+                                    },
+                                    "is_important": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "attachments": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/InternalNote"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/internal-notes/{internalNote}": {
+            "put": {
+                "tags": [
+                    "Internal Notes"
+                ],
+                "summary": "Update internal note",
+                "description": "Updates an existing internal note",
+                "operationId": "updateInternalNote",
+                "parameters": [
+                    {
+                        "name": "internalNote",
+                        "in": "path",
+                        "description": "Internal Note ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Updated content"
+                                    },
+                                    "is_important": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "attachments": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/InternalNote"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Internal Notes"
+                ],
+                "summary": "Delete internal note",
+                "description": "Deletes an internal note",
+                "operationId": "deleteInternalNote",
+                "parameters": [
+                    {
+                        "name": "internalNote",
+                        "in": "path",
+                        "description": "Internal Note ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/macros": {
+            "post": {
+                "tags": [
+                    "Macros"
+                ],
+                "summary": "Store new macro",
+                "description": "Creates a new macro",
+                "operationId": "storeMacro",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "content",
+                                    "scope"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Macro Name"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Macro Content"
+                                    },
+                                    "scope": {
+                                        "type": "string",
+                                        "enum": [
+                                            "personal",
+                                            "global"
+                                        ],
+                                        "example": "personal"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "General"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Macro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/macros/{macro}": {
+            "put": {
+                "tags": [
+                    "Macros"
+                ],
+                "summary": "Update macro",
+                "description": "Updates an existing macro",
+                "operationId": "updateMacro",
+                "parameters": [
+                    {
+                        "name": "macro",
+                        "in": "path",
+                        "description": "Macro ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "content",
+                                    "scope"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Updated Name"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Updated Content"
+                                    },
+                                    "scope": {
+                                        "type": "string",
+                                        "enum": [
+                                            "personal",
+                                            "global"
+                                        ],
+                                        "example": "personal"
+                                    },
+                                    "category": {
+                                        "type": "string",
+                                        "example": "General"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Macro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Macros"
+                ],
+                "summary": "Delete macro",
+                "description": "Deletes a macro",
+                "operationId": "deleteMacro",
+                "parameters": [
+                    {
+                        "name": "macro",
+                        "in": "path",
+                        "description": "Macro ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/macros/{macro}/favorite": {
+            "post": {
+                "tags": [
+                    "Macros"
+                ],
+                "summary": "Toggle favorite macro",
+                "description": "Adds or removes macro from favorites",
+                "operationId": "toggleFavoriteMacro",
+                "parameters": [
+                    {
+                        "name": "macro",
+                        "in": "path",
+                        "description": "Macro ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/macros/{macro}/preview": {
+            "post": {
+                "tags": [
+                    "Macro Usage"
+                ],
+                "summary": "Preview a macro with context",
+                "description": "Returns rendered content of a macro",
+                "operationId": "previewMacro",
+                "parameters": [
+                    {
+                        "name": "macro",
+                        "in": "path",
+                        "description": "Macro ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ticket_code",
+                                    "ticket_title",
+                                    "customer_name"
+                                ],
+                                "properties": {
+                                    "ticket_code": {
+                                        "type": "string",
+                                        "example": "T-12345"
+                                    },
+                                    "ticket_title": {
+                                        "type": "string",
+                                        "example": "Issue with login"
+                                    },
+                                    "customer_name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "content": {
+                                                    "type": "string"
+                                                },
+                                                "available_placeholders": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/macros/{macro}/usages": {
+            "post": {
+                "tags": [
+                    "Macro Usage"
+                ],
+                "summary": "Record macro usage",
+                "description": "Stores a record of macro usage",
+                "operationId": "storeMacroUsage",
+                "parameters": [
+                    {
+                        "name": "macro",
+                        "in": "path",
+                        "description": "Macro ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ticket_code",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "ticket_code": {
+                                        "type": "string",
+                                        "example": "T-12345"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Rendered content..."
+                                    },
+                                    "customized": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "usage_id": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/macro-usages/{macroUsage}/feedback": {
+            "post": {
+                "tags": [
+                    "Macro Usage"
+                ],
+                "summary": "Provide feedback on macro usage",
+                "description": "Updates feedback for a macro usage",
+                "operationId": "feedbackMacroUsage",
+                "parameters": [
+                    {
+                        "name": "macroUsage",
+                        "in": "path",
+                        "description": "Macro Usage ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "feedback"
+                                ],
+                                "properties": {
+                                    "feedback": {
+                                        "type": "string",
+                                        "enum": [
+                                            "positive",
+                                            "negative"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "feedback": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Invalid feedback"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -275,6 +925,58 @@
                     }
                 },
                 "type": "object"
+            },
+            "MacroUsage": {
+                "required": [
+                    "macro_id",
+                    "agent_id",
+                    "ticket_code",
+                    "rendered_content"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "id",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "macro_id": {
+                        "description": "Macro ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "agent_id": {
+                        "description": "Agent ID",
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "ticket_code": {
+                        "description": "Ticket Code",
+                        "type": "string"
+                    },
+                    "rendered_content": {
+                        "description": "Rendered Content",
+                        "type": "string"
+                    },
+                    "customized": {
+                        "description": "Is Customized",
+                        "type": "boolean"
+                    },
+                    "feedback": {
+                        "description": "Feedback (positive/negative)",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Created At",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Updated At",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
             }
         }
     },
@@ -286,6 +988,10 @@
         {
             "name": "Macros",
             "description": "Macros"
+        },
+        {
+            "name": "Macro Usage",
+            "description": "Macro Usage"
         }
     ]
 }

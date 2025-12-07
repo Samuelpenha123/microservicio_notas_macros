@@ -8,10 +8,47 @@ use App\Models\Macro;
 use App\Models\MacroFavorite;
 use App\Support\ExternalAuth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class MacroController extends Controller
 {
-    public function store(StoreMacroRequest $request): RedirectResponse
+    /**
+     * @OA\Post(
+     *      path="/macros",
+     *      operationId="storeMacro",
+     *      tags={"Macros"},
+     *      summary="Store new macro",
+     *      description="Creates a new macro",
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"name", "content", "scope"},
+     *              @OA\Property(property="name", type="string", example="Macro Name"),
+     *              @OA\Property(property="content", type="string", example="Macro Content"),
+     *              @OA\Property(property="scope", type="string", enum={"personal", "global"}, example="personal"),
+     *              @OA\Property(property="category", type="string", example="General")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string"),
+     *              @OA\Property(property="data", ref="#/components/schemas/Macro")
+     *          )
+     *       ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error"
+     *      )
+     * )
+     */
+    public function store(StoreMacroRequest $request): RedirectResponse|JsonResponse
     {
         $macro = Macro::create([
             'name' => $request->input('name'),
@@ -22,10 +59,62 @@ class MacroController extends Controller
             'created_by_name' => ExternalAuth::name(),
         ]);
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => "Macro {$macro->name} creada.",
+                'data' => $macro,
+            ]);
+        }
+
         return back()->with('status', "Macro {$macro->name} creada.");
     }
 
-    public function update(UpdateMacroRequest $request, Macro $macro): RedirectResponse
+    /**
+     * @OA\Put(
+     *      path="/macros/{macro}",
+     *      operationId="updateMacro",
+     *      tags={"Macros"},
+     *      summary="Update macro",
+     *      description="Updates an existing macro",
+     *      @OA\Parameter(
+     *          name="macro",
+     *          description="Macro ID",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"name", "content", "scope"},
+     *              @OA\Property(property="name", type="string", example="Updated Name"),
+     *              @OA\Property(property="content", type="string", example="Updated Content"),
+     *              @OA\Property(property="scope", type="string", enum={"personal", "global"}, example="personal"),
+     *              @OA\Property(property="category", type="string", example="General")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string"),
+     *              @OA\Property(property="data", ref="#/components/schemas/Macro")
+     *          )
+     *       ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error"
+     *      )
+     * )
+     */
+    public function update(UpdateMacroRequest $request, Macro $macro): RedirectResponse|JsonResponse
     {
         $agentId = ExternalAuth::id();
 
@@ -40,10 +129,47 @@ class MacroController extends Controller
             'category' => $request->input('category'),
         ]);
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => "Macro {$macro->name} actualizada.",
+                'data' => $macro,
+            ]);
+        }
+
         return back()->with('status', "Macro {$macro->name} actualizada.");
     }
 
-    public function destroy(Macro $macro): RedirectResponse
+    /**
+     * @OA\Delete(
+     *      path="/macros/{macro}",
+     *      operationId="deleteMacro",
+     *      tags={"Macros"},
+     *      summary="Delete macro",
+     *      description="Deletes a macro",
+     *      @OA\Parameter(
+     *          name="macro",
+     *          description="Macro ID",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string")
+     *          )
+     *       ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     * )
+     */
+    public function destroy(Macro $macro): RedirectResponse|JsonResponse
     {
         $agentId = ExternalAuth::id();
 
@@ -53,10 +179,46 @@ class MacroController extends Controller
 
         $macro->delete();
 
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'Macro eliminada.',
+            ]);
+        }
+
         return back()->with('status', 'Macro eliminada.');
     }
 
-    public function toggleFavorite(Macro $macro): RedirectResponse
+    /**
+     * @OA\Post(
+     *      path="/macros/{macro}/favorite",
+     *      operationId="toggleFavoriteMacro",
+     *      tags={"Macros"},
+     *      summary="Toggle favorite macro",
+     *      description="Adds or removes macro from favorites",
+     *      @OA\Parameter(
+     *          name="macro",
+     *          description="Macro ID",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="status", type="string")
+     *          )
+     *       ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden"
+     *      )
+     * )
+     */
+    public function toggleFavorite(Macro $macro): RedirectResponse|JsonResponse
     {
         $agentId = ExternalAuth::id();
 
@@ -68,6 +230,12 @@ class MacroController extends Controller
         if ($favorite) {
             $favorite->delete();
 
+            if (request()->wantsJson()) {
+                return response()->json([
+                    'status' => 'Macro removida de favoritos.',
+                ]);
+            }
+
             return back()->with('status', 'Macro removida de favoritos.');
         }
 
@@ -75,6 +243,12 @@ class MacroController extends Controller
             'macro_id' => $macro->id,
             'agent_id' => $agentId,
         ]);
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'Macro agregada a favoritos.',
+            ]);
+        }
 
         return back()->with('status', 'Macro agregada a favoritos.');
     }
